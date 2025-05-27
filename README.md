@@ -1,85 +1,79 @@
-Application PRICES:
 
-Hexagonal Spring Boot Application for Dynamic Pricing
+# 🏷️ PRICES  
+*Hexagonal Architecture | Spring Boot | Clean Code*  
 
-Spring Boot 3.1.5; 
-Java 17
+[![Java](https://img.shields.io/badge/Java-17-blue)](https://openjdk.org/projects/jdk/17/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.1-green)](https://spring.io/projects/spring-boot)
 
-Overview:
+---
 
-A REST API that retrieves product pricing based on:
-Brand ID;
-Product ID;
-Application date;
+## 📌 Overview  
+A REST API that retrieves product pricing based on:  
+- **Brand ID**  
+- **Product ID**  
+- **Application date/time**  
 
-Built with Hexagonal Architecture for clean separation of concerns.
+Built with **Hexagonal Architecture** for maintainability and testability.
 
-Quick Start
-Prerequisites:
-JDK 17+
-Maven 3.9+
+---
 
-Run Locally:
-  bash;
-  git clone https://github.com/AndriusPazukasTestProgram/prices.git;
-  cd prices;
-  mvn spring-boot:run
+## 🚀 Features  
+✅ **Clean Architecture** (Domain, Application, Infrastructure layers)  
+✅ **Custom error handling** with meaningful HTTP responses  
+✅ **Validation** for all input parameters  
+✅ **In-memory H2 database** with sample data  
 
-API Documentation:
-GET /api/prices;   
-  Retrieve pricing for a product at a specific date.
+---
 
+## 🏗️ Architecture  
 
-Example Request:
-   bash;
-   curl "http://localhost:8080/api/prices?date=2020-06-14T15:00:00&productId=35455&brandId=1";
-   Success Response (200 OK):
-json
+> ℹ️ Diagram below rendered using [Mermaid](https://mermaid.js.org/)
+
+```mermaid
+flowchart TD
+    A[API Controllers] --> B(Use Cases)
+    B --> C[Domain Models]
+    C --> D{{Ports}}
+    D --> E[Repositories]
+    E --> F[(H2 Database)]
+```
+
+---
+
+## 📖 API Documentation
+
+You can explore the full API documentation via:
+
+🔗 [Swagger UI](http://localhost:8080/swagger-ui.html)  
+📄 [OpenAPI Spec](http://localhost:8080/v3/api-docs)  
+
+### 🔍 Example: `GET /api/prices`
+
+Retrieves product pricing based on brand ID, product ID, and application date.
+
+**Query Parameters:**
+- `brandId` (Long) – e.g., `1`
+- `productId` (Long) – e.g., `35455`
+- `applicationDate` (String - ISO) – e.g., `2020-06-14T10:00:00`
+
+**Response:**
+```json
 {
   "productId": 35455,
   "brandId": 1,
-  "priceList": 2,
-  "startDate": "2020-06-14T15:00:00",
-  "endDate": "2020-06-14T18:30:00",
-  "price": 25.45,
+  "priceList": 1,
+  "startDate": "2020-06-14T00:00:00",
+  "endDate": "2020-12-31T23:59:59",
+  "price": 35.5,
   "currency": "EUR"
 }
-Error Cases:
-400 Bad Request: Invalid date format
-404 Not Found: Price not found
-
-Hexagonal Architecture:
-  Key Components:
-  Domain:   Price, PriceQuery (business models)
-  Application:   GetPriceUseCase (ports), PriceService (use cases)
-  Adapters:   PriceController (REST adapter), JpaPriceRepository (DB adapter)
-
-Database Setup:
-Schema:
-sql
-CREATE TABLE prices (
-  id BIGINT AUTO_INCREMENT PRIMARY KEY,
-  brand_id BIGINT NOT NULL,
-  product_id BIGINT NOT NULL,
-  start_date TIMESTAMP NOT NULL,
-  end_date TIMESTAMP NOT NULL,
-  price_list INT NOT NULL,
-  priority INT NOT NULL,
-  price DECIMAL(10,2) NOT NULL,
-  curr VARCHAR(3) NOT NULL
-);
-
-Sample Data:
-    sql
-    INSERT INTO prices VALUES 
-(1, 1, 35455, '2020-06-14 00:00:00', '2020-12-31 23:59:59', 1, 0, 35.50, 'EUR'),
-(2, 1, 35455, '2020-06-14 15:00:00', '2020-06-14 18:30:00', 2, 1, 25.45, 'EUR');
-
-Testing:
-   Test Coverage:
-   Integration Tests: API endpoints (PriceControllerTest)
+```
 
 
-Contact:
-  For questions or contributions:
-  Email: www.andriuspazukas1981@gmail.com
+---
+
+## 📬 Contact
+
+**Andrius Pazukas**  
+📧 andriuspazukas1981@gmail.com 
+
