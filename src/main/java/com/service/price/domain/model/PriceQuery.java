@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-
+@Setter
 public class PriceQuery {
 
     private LocalDateTime applicationDate;

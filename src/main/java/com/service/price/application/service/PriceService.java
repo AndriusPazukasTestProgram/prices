@@ -5,7 +5,9 @@ import com.service.price.application.ports.out.PriceRepository;
 import com.service.price.domain.exception.PriceNotFoundException;
 import com.service.price.domain.model.Price;
 import com.service.price.domain.model.PriceQuery;
+import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -23,13 +25,17 @@ public class PriceService implements GetPriceUseCase {
 
     @Override
     public Price getPrice(PriceQuery query) {
-        List<Price> prices = priceRepository.findPricesByCriteria(query);
+        try {
+            List<Price> prices = priceRepository.findPricesByCriteria(query);
 
-        return prices.stream()
-                .max(Comparator.comparing(Price::getPriority))
-                .orElseThrow(() -> new PriceNotFoundException(
-                        "Price not found for productId: " + query.getProductId() +
-                                ", brandId: " + query.getBrandId() +
-                                ", applicationDate: " + query.getApplicationDate()));
+            return prices.stream()
+                    .max(Comparator.comparing(Price::getPriority))
+                    .orElseThrow(() -> new PriceNotFoundException(
+                            "Price not found for productId: " + query.getProductId() +
+                                    ", brandId: " + query.getBrandId() +
+                                    ", applicationDate: " + query.getApplicationDate()));
+        }catch (DataAccessException ex){
+            throw new ServiceException("Database error occurred", ex);
+        }
     }
 }
