@@ -36,18 +36,6 @@ public class PriceController {
            @RequestParam Long productId,
            @RequestParam Long brandId) {
 
-        if (date == null) {
-            throw new InvalidParameterException("date", "Es obligatorio");
-        }
-
-        if (productId == null || productId <= 0) {
-            throw new InvalidParameterException("productId", "Debe ser un número positivo");
-        }
-
-        if (brandId == null || brandId <= 0) {
-            throw new InvalidParameterException("brandId", "Debe ser un número positivo");
-        }
-
 
         LocalDateTime parsedDate;
         try {

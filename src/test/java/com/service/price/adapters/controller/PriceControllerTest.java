@@ -1,11 +1,13 @@
 package com.service.price.adapters.controller;
 
 import com.service.price.application.ports.in.GetPriceUseCase;
+import com.service.price.domain.exception.InvalidParameterException;
 import com.service.price.domain.exception.PriceNotFoundException;
 import com.service.price.domain.model.Price;
 import com.service.price.domain.model.PriceQuery;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.springdoc.api.ErrorMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
 
 
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -168,13 +171,81 @@ public class PriceControllerTest {
 
     //Casos de error
 
+    @Test
+    void getPrice_WhenMissingAllParam() throws Exception {
+        mockMvc.perform(get("/api/prices"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("MISSING_PARAMETER"))
+                .andExpect(jsonPath("$.message").value(containsString("Parámetro requerido 'date' no proporcionado")));
+    }
 
     @Test
-    void getPrice_WhenMissingParameters() throws Exception {
+    void getPrice_WhenMissingProductId() throws Exception {
         mockMvc.perform(get("/api/prices")
-                        .param("date", "2020-06-14T10:00:00")
+                        .param("date", "2020-06-14-10.00.00")
                         .param("brandId", "1"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("MISSING_PARAMETER"))
+                .andExpect(jsonPath("$.message").value(containsString("Parámetro requerido 'productId' no proporcionado")));
+    }
+
+    @Test
+    void getPrice_WhenMissingBrandId() throws Exception {
+        mockMvc.perform(get("/api/prices")
+                        .param("date", "2020-06-14-10.00.00")
+                        .param("productId", "35455"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("MISSING_PARAMETER"))
+                .andExpect(jsonPath("$.message").value(containsString("Parámetro requerido 'brandId' no proporcionado")));
+    }
+    @Test
+    void getPrice_WhenMissingDate() throws Exception {
+        mockMvc.perform(get("/api/prices")
+                        .param("productId", "35455")
+                        .param("brandId","1"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("MISSING_PARAMETER"))
+                .andExpect(jsonPath("$.message").value(containsString("Parámetro requerido 'date' no proporcionado")));
+    }
+    @Test
+    void getPrice_WhenBrandIdTypeMismatch() throws Exception {
+        mockMvc.perform(get("/api/prices")
+                        .param("date", "2020-06-14-10.00.00")
+                        .param("productId", "35455")
+                        .param("brandId","t"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("INVALID_PARAMETER_TYPE"))
+                .andExpect(jsonPath("$.message").value(containsString("Valor inválido para parámetro 'brandId'. Se esperaba Long")));
+    }
+    @Test
+    void getPrice_WhenProductIdTypeMismatch() throws Exception {
+        mockMvc.perform(get("/api/prices")
+                        .param("date", "2020-06-14-10.00.00")
+                        .param("productId", "ggg")
+                        .param("brandId","1"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("INVALID_PARAMETER_TYPE"))
+                .andExpect(jsonPath("$.message").value(containsString("Valor inválido para parámetro 'productId'. Se esperaba Long")));
+    }
+    @Test
+    void getPrice_WhenInvalidBrandId() throws Exception {
+        mockMvc.perform(get("/api/prices")
+                        .param("date", "2020-06-14-10.00.00")
+                        .param("productId", "35455")
+                        .param("brandId", "2"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("PRICE_NOT_FOUND"))
+                .andExpect(jsonPath("$.message").value(containsString("No price found for the specified criteria")));
+    }
+    @Test
+    void getPrice_WhenInvalidProductId() throws Exception {
+        mockMvc.perform(get("/api/prices")
+                        .param("date", "2020-06-14-10.00.00")
+                        .param("productId", "35456")
+                        .param("brandId", "1"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("PRICE_NOT_FOUND"))
+                .andExpect(jsonPath("$.message").value(containsString("No price found for the specified criteria")));
     }
 
     @Test
@@ -183,7 +254,9 @@ public class PriceControllerTest {
                         .param("date", "14-06-2020")
                         .param("productId", "35455")
                         .param("brandId", "1"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("INVALID_PARAMETER"))
+                .andExpect(jsonPath("$.message").value(containsString("Invalid parameter 'date': Formato inválido. Use yyyy-MM-dd-HH.mm.ss")));
     }
 
     @Test
